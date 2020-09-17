@@ -1,6 +1,6 @@
 # Fancy Gallery
 
-Implementing infinite scroll IntersectionObserver API.
+Implementing infinite scroll with IntersectionObserver API.
 
 ## Quick start guide
 
