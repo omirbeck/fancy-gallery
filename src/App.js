@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect} from "react";
+import {Link} from 'react-router-dom';
 import axios from "axios";
 import { ACCESS_KEY, API_URL } from "./credentials";
 import "./App.css";
+import Pagination from "./components/Pagination";
 
 function App() {
   const [inputValue, setInputValue] = useState('');
@@ -11,6 +13,7 @@ function App() {
   const [firstPage, setFirstPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [isQuery, setIsQuery] = useState(false);
 
   const loader = useRef(null);
 
@@ -24,10 +27,8 @@ function App() {
       )
       .then((response) => {
         console.log(response.data)
-        console.log(response.headers)
         setTotal(Number(response.headers["x-total"]))
-        console.log(response.headers["x-total"])
-        setImages([...response.data])
+        setImages(response.data)
         lastPageCount()
       });
   };
@@ -35,14 +36,14 @@ function App() {
   const searchImages = () => {
     axios
       .get(
-        `${API_URL}/search/photos/?query=${query}&page=${page}&per_page=10`,
+        `${API_URL}/search/photos/?query=${query}&page=1&per_page=10`,
         {
           headers: { Authorization: `Client-ID ${ACCESS_KEY}` },
         }
       )
       .then((response) =>  {
-        console.log(response.headers)
-        setImages([...images, ...response.data.results])
+        console.log(response.data)
+        setImages(response.data.results)
       });
   };
 
@@ -50,11 +51,19 @@ function App() {
     fetchImages()
   }, [total])
 
+  useEffect(() => {
+      if (query) {
+        searchImages();
+      } else {
+        fetchImages(page);
+      }
+    }, [page, query]);
+
   const handleClick = (newQuery) => {
-    if (newQuery !== query) {
-      setImages([]);
-      setPages(1);
-    }
+    // if (newQuery !== query) {
+      // setImages([]);
+      // setPages(1);
+    // }
     setQuery(newQuery);
   };
 
@@ -63,11 +72,26 @@ function App() {
   }
 
   const nextPage = () => {
-    if (page <= lastPage) {
+    if (page < lastPage) {
       setPages(page + 1)
-      fetchImages(page)
+
     }
   }
+
+  const previewPage = () => {
+    if (page > firstPage) {
+      setPages(page - 1)
+    }
+  }
+
+  const firstPageHandle = () => {
+    setPages(firstPage)
+  }
+
+  const lastPageHandle = () => {
+    setPages(lastPage)
+  }
+
 
   // const handleObserver = (entities) => {
   //   const target = entities[0];
@@ -91,13 +115,7 @@ function App() {
   //   }
   // }, []);
 
-  // useEffect(() => {
-  //   if (query) {
-  //     searchImages();
-  //   } else {
-  //     fetchImages();
-  //   }
-  // }, [page, query]);
+  // 
   
 
   return (
@@ -106,34 +124,27 @@ function App() {
         <h1>Fancy Gallery</h1>
       </header>
       <div className="form-inline">
-        <input className='form-control' type="text" onChange={(event) =>  { 
+        <input 
+          className='form-control' 
+          type="text" 
+          onChange={(event) =>  { 
           setInputValue(event.target.value)
           }} 
         />
-        <button className='btn btn-primary ml-3' onClick={() =>  handleClick(inputValue)}>Find</button>
+        <button 
+          className='btn btn-primary ml-3' 
+          onClick={() =>  handleClick(inputValue)}
+        >
+          Find
+        </button>
       </div>
       <ul className='pagination'>
-        <li className="page-item">
-          <span 
-            className='page-link' 
-            onClick={() => fetchImages(firstPage)}
-          >First</span>
-        </li>
-        <li className="page-item">
-          <a href="!#" className='page-link' aria-label="Previous">&laquo;</a>
-        </li>
-        <li className="page-item">
-          <span 
-            className='page-link' 
-            onClick={nextPage}
-            >&raquo;</span>
-        </li>
-        <li className="page-item">
-          <span 
-            className='page-link'
-            onClick={() => fetchImages(lastPage)}
-            >Last</span>
-        </li>
+
+        <Pagination handlePage={firstPageHandle} title='First'/>
+        <Pagination handlePage={previewPage} title='&laquo;'/>
+        <Pagination handlePage={nextPage} title='&raquo;'/>
+        {isQuery && <Pagination handlePage={lastPageHandle} title='Last'/>}
+
       </ul>
       <div className="image-grid">
         {images.map((image) => {
