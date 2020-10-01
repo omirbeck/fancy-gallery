@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect} from "react";
-import {Link} from 'react-router-dom';
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { ACCESS_KEY, API_URL } from "./credentials";
 import "./App.css";
@@ -22,59 +21,61 @@ function App() {
       .get(
         `${API_URL}/photos/?page=${newPage}`,
         {
-          headers: { Authorization: `Client-ID ${ACCESS_KEY}`}
+          headers: { Authorization: `Client-ID ${ACCESS_KEY}` }
         }
       )
       .then((response) => {
-        console.log(response.data)
         setTotal(Number(response.headers["x-total"]))
         setImages(response.data)
-        lastPageCount()
+        setIsQuery(false)
       });
   };
 
-  const searchImages = () => {
+  const searchImages = (newPage = 1) => {
     axios
       .get(
-        `${API_URL}/search/photos/?query=${query}&page=1&per_page=10`,
+        `${API_URL}/search/photos/?query=${query}&page=${newPage}&per_page=10`,
         {
           headers: { Authorization: `Client-ID ${ACCESS_KEY}` },
         }
       )
-      .then((response) =>  {
-        console.log(response.data)
+      .then((response) => {
+        setLastPage(response.data.total_pages)
+        setTotal(response.data.total)
         setImages(response.data.results)
+        setIsQuery(true)
       });
   };
 
   useEffect(() => {
-    fetchImages()
+    if (!isQuery) {
+      getLastPage()
+    }
   }, [total])
 
   useEffect(() => {
-      if (query) {
-        searchImages();
-      } else {
-        fetchImages(page);
-      }
-    }, [page, query]);
+    if (query) {
+      searchImages(page);
+    } else {
+      fetchImages(page);
+    }
+  }, [page, query]);
 
   const handleClick = (newQuery) => {
-    // if (newQuery !== query) {
-      // setImages([]);
-      // setPages(1);
-    // }
+    if (newQuery !== query) {
+      setPages(1);
+    }
     setQuery(newQuery);
   };
 
-  const lastPageCount = () => {
+  const getLastPage = () => {
     setLastPage(Math.ceil(total / 10))
   }
 
   const nextPage = () => {
+    console.log(lastPage, total)
     if (page < lastPage) {
       setPages(page + 1)
-
     }
   }
 
@@ -92,60 +93,34 @@ function App() {
     setPages(lastPage)
   }
 
-
-  // const handleObserver = (entities) => {
-  //   const target = entities[0];
-
-  //   if (target.intersectionRatio > 0) {
-  //     setPages((page) => page + 1);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const options = {
-  //     root: null,
-  //     rootMargin: "0px",
-  //     treshold: 1,
-  //   };
-
-  //   const observer = new IntersectionObserver(handleObserver, options);
-
-  //   if (loader.current) {
-  //     observer.observe(loader.current);
-  //   }
-  // }, []);
-
-  // 
-  
-
   return (
     <div className="container">
       <header className="header">
         <h1>Fancy Gallery</h1>
-      </header>
-      <div className="form-inline">
-        <input 
-          className='form-control' 
-          type="text" 
-          onChange={(event) =>  { 
-          setInputValue(event.target.value)
-          }} 
-        />
-        <button 
-          className='btn btn-primary ml-3' 
-          onClick={() =>  handleClick(inputValue)}
-        >
-          Find
+        <div className="form-inline mb-3 mt-3">
+          <input
+            className='form-control'
+            type="text"
+            onChange={(event) => {
+              setInputValue(event.target.value)
+            }}
+          />
+          <button
+            className='btn btn-primary ml-3'
+            onClick={() => handleClick(inputValue)}
+          >
+            Find
         </button>
-      </div>
-      <ul className='pagination'>
+        </div>
+        <ul className='pagination'>
+          <Pagination handlePage={firstPageHandle} title='First' />
+          <Pagination handlePage={previewPage} title='&laquo;' />
+          {<Pagination title={page} />}
+          <Pagination handlePage={nextPage} title='&raquo;' />
+          {isQuery && <Pagination handlePage={lastPageHandle} title='Last' />}
+        </ul>
+      </header>
 
-        <Pagination handlePage={firstPageHandle} title='First'/>
-        <Pagination handlePage={previewPage} title='&laquo;'/>
-        <Pagination handlePage={nextPage} title='&raquo;'/>
-        {isQuery && <Pagination handlePage={lastPageHandle} title='Last'/>}
-
-      </ul>
       <div className="image-grid">
         {images.map((image) => {
           const { id, color, urls, alt_description } = image;
@@ -160,7 +135,15 @@ function App() {
           );
         })}
       </div>
-      <div ref={loader}>Loading...</div>
+      { isQuery && (
+        <div className="footer">
+          <p>Количество результатов: {total}</p>
+          <p>Количество страниц: {lastPage}</p>
+          <p>Номер страницы: {page}</p>
+        </div>
+      )
+      }
+
     </div>
   );
 }
