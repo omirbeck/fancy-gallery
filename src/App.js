@@ -137,25 +137,25 @@ function App() {
             }
             <Pagination
               handlePage={() => setPages(DEFAULT_INITIAL_PAGE)}
-              title='&laquo;'
+              title='&#xf100;'
               disabled={disableFirst}
             />
             <Pagination
               handlePage={previousPage}
-              title='<'
+              title='&#xf104;'
               disabled={disableFirst}
             />
             <span>{page}</span>
             {isQuery && <span>of {lastPage}</span>}
             <Pagination
               handlePage={nextPage}
-              title='>'
+              title='&#xf105;'
               disabled={disableLast}
             />
             {isQuery &&
               <Pagination
                 handlePage={lastPageHandle}
-                title='&raquo;'
+                title='&#xf101;'
                 disabled={disableLast}
               />}
           </ul>

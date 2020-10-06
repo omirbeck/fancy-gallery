@@ -11,7 +11,7 @@ const Pagination = ({handlePage, title, disabled}) => {
           onClick={handlePage}
           disabled={disabled}
         >
-          {title}          
+          <i className='fa'>{title}</i>       
         </button>
       </li>
     </>
