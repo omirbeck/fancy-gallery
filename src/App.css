@@ -18,6 +18,7 @@ header {
 .image-item:nth-child(5n) {
   grid-column-end: span 2;
 }
+
 img {
   display: flex;
   width: 100%;
@@ -28,4 +29,23 @@ img {
 .pagination {
   text-align: center;
   margin-top: 20px;
+}
+
+.pagination span {
+  min-width: 20px;
+  padding: 0;
+  display: inline-block;
+  margin: auto 5px;
+  text-align: center;
+}
+
+.page-item {
+  margin: 0 3px;
+}
+
+button:disabled,
+button[disabled]{
+  border: 1px solid #cccccc;
+  background-color: #cccccc;
+  color: #666666;
 }

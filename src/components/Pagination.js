@@ -1,19 +1,20 @@
-import React, { Fragment } from 'react';
-import {Link} from 'react-router-dom';
+import React from 'react';
+// import {Link} from 'react-router-dom';
 
-const Pagination = ({handlePage, title}) => {
+const Pagination = ({handlePage, title, disabled}) => {
 
   return (
-    <Fragment>
+    <>
       <li className="page-item">
-        <Link to="/"
+        <button
           className='page-link'
           onClick={handlePage}
+          disabled={disabled}
         >
           {title}          
-        </Link>
+        </button>
       </li>
-    </Fragment>
+    </>
   )
 }
 
