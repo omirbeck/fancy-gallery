@@ -1,167 +1,83 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { ACCESS_KEY, API_URL, DEFAULT_INITIAL_PAGE } from "./credentials";
+import { ACCESS_KEY, API_URL } from "./credentials";
 import "./App.css";
-import Pagination from "./components/Pagination";
 
 function App() {
-  const [inputValue, setInputValue] = useState('');
   const [images, setImages] = useState([]);
   const [page, setPages] = useState(1);
   const [query, setQuery] = useState();
-  const [lastPage, setLastPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [isQuery, setIsQuery] = useState(false);
-  const [disableFirst, setDisableFirst] = useState(true);
-  const [disableLast, setDisableLast] = useState(false);
+  const loader = useRef(null);
 
   const fetchImages = () => {
     axios
       .get(
-        `${API_URL}/photos/?page=${page}`,
-        {
-          headers: { Authorization: `Client-ID ${ACCESS_KEY}` }
-        }
+        `${API_URL}/photos/?page=${page}&per_page=20&client_id=${ACCESS_KEY}`
       )
-      .then((response) => {
-        setTotal(Number(response.headers["x-total"]))
-        setImages(response.data)
-        setIsQuery(false)
-      });
+      .then((response) => setImages([...images, ...response.data]));
   };
 
   const searchImages = () => {
     axios
       .get(
-        `${API_URL}/search/photos/?query=${query}&page=${page}&per_page=10`,
+        `${API_URL}/search/photos/?query=${query}&page=${page}&per_page=20`,
         {
           headers: { Authorization: `Client-ID ${ACCESS_KEY}` },
         }
       )
-      .then((response) => {
-        setLastPage(response.data.total_pages)
-        setTotal(response.data.total)
-        setImages(response.data.results)
-        setIsQuery(true)
-      });
+      .then((response) => setImages([...images, ...response.data.results]));
+  };
+
+  const handleClick = (newQuery) => {
+    if (newQuery !== query) {
+      setImages([]);
+      setPages(1);
+    }
+    setQuery(newQuery);
+  };
+
+  const handleObserver = (entities) => {
+    const target = entities[0];
+
+    if (target.intersectionRatio > 0) {
+      setPages((page) => page + 1);
+    }
   };
 
   useEffect(() => {
-    if (!isQuery) {
-      getLastPage()
+    const options = {
+      root: null,
+      rootMargin: "0px",
+      treshold: 1,
+    };
+
+    const observer = new IntersectionObserver(handleObserver, options);
+
+    if (loader.current) {
+      observer.observe(loader.current);
     }
-  }, [total])
+  }, []);
 
   useEffect(() => {
     if (query) {
       searchImages();
     } else {
-      fetchImages(page);
+      fetchImages();
     }
-    disabledPagination()
   }, [page, query]);
-
-  const handleClick = () => {
-    if (inputValue !== query) {
-      setPages(1);
-    }
-    setQuery(inputValue);
-  };
-
-  const enterInput = (e) => {
-    if (e.key === 'Enter') {
-      handleClick(inputValue)
-    }
-  };
-
-  const getLastPage = () => {
-    setLastPage(Math.ceil(total / 10))
-  }
-
-  const nextPage = () => {
-    if (page < lastPage) {
-      setPages(page + 1)
-    }
-  }
-
-  const previousPage = () => {
-    if (page > DEFAULT_INITIAL_PAGE) {
-      setPages(page - 1)
-    }
-  }
-
-  const lastPageHandle = () => {
-    setPages(lastPage)
-  }
-
-  const disabledPagination = () => {
-    if (page === DEFAULT_INITIAL_PAGE) {
-      setDisableLast(false)
-      setDisableFirst(true)
-    } else if (page === lastPage) {
-      setDisableLast(true)
-      setDisableFirst(false)
-    } else {
-      setDisableLast(false)
-      setDisableFirst(false)
-    }
-  }
-
 
   return (
     <div className="container">
       <header className="header">
         <h1>Fancy Gallery</h1>
-        <div className="form-inline mb-3 mt-3">
-          <input
-            className='form-control'
-            type="text"
-            onChange={(event) => {
-              setInputValue(event.target.value)
-            }}
-            onKeyDown={enterInput}
-            value={inputValue}
-          />
-          <button
-            className='btn btn-primary ml-3'
-            onClick={handleClick}
-          >
-            Search
-        </button>
-        </div>
-
-        {total > 10 &&
-          <ul className='pagination'>
-            {isQuery &&
-              <span>{total} photos</span>
-            }
-            <Pagination
-              handlePage={() => setPages(DEFAULT_INITIAL_PAGE)}
-              title='&#xf100;'
-              disabled={disableFirst}
-            />
-            <Pagination
-              handlePage={previousPage}
-              title='&#xf104;'
-              disabled={disableFirst}
-            />
-            <span>{page}</span>
-            {isQuery && <span>of {lastPage}</span>}
-            <Pagination
-              handlePage={nextPage}
-              title='&#xf105;'
-              disabled={disableLast}
-            />
-            {isQuery &&
-              <Pagination
-                handlePage={lastPageHandle}
-                title='&#xf101;'
-                disabled={disableLast}
-              />}
-          </ul>
-        }
       </header>
-
+      <div className="tags">
+        <button onClick={() => handleClick("cats")}>Cats</button>
+        <button onClick={() => handleClick("dogs")}>Dogs</button>
+        <button onClick={() => handleClick("coffee")}>Coffee</button>
+        <button onClick={() => handleClick("react")}>React</button>
+        <button onClick={() => handleClick()}>Random</button>
+      </div>
       <div className="image-grid">
         {images.map((image) => {
           const { id, color, urls, alt_description } = image;
@@ -176,6 +92,7 @@ function App() {
           );
         })}
       </div>
+      <div ref={loader}>Loading...</div>
     </div>
   );
 }
