@@ -3,6 +3,11 @@ export type Image = {
     alt_description: string;
     color: string;
     urls: {
-        small: string;
+        small: string
     };
+    description: string;
+    likes: number,
+    user: {
+        name: string
+    }
 }
