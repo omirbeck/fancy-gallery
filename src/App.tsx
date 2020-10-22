@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { ACCESS_KEY, API_URL } from "./credentials";
 import { Image } from './service/type';
 import "./App.css";
@@ -6,7 +6,7 @@ import { useFetchData, useIntersactionObserver } from './service/hooks';
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ImageList from "./components/ImageList";
-import { Button, CircularProgress, Grid, Icon, makeStyles, Typography } from "@material-ui/core";
+import { CircularProgress, Grid, makeStyles, Typography } from "@material-ui/core";
 import SliderButton from "./components/SliderButton";
 
 

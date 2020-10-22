@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createStyles, GridList, GridListTile, GridListTileBar, IconButton, ListSubheader, makeStyles, Theme, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { createStyles, GridList, GridListTile, GridListTileBar, IconButton, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
 import { Image } from '../service/type';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,6 +53,7 @@ const ImageList = ({ images }: { images: Image[] }) => {
 
     useEffect(() => {
       cols();
+      // eslint-disable-next-line 
     }, [xs, sm, md, xl])
 
   return (
@@ -63,7 +64,7 @@ const ImageList = ({ images }: { images: Image[] }) => {
 
           return (
           <GridListTile key={`${id}-${index}`} cols={1}>
-            <img src={urls.small} alt={alt_description} />
+            <img src={urls.small} alt={alt_description} color={color} />
             <GridListTileBar
               title={<span>Author: {user.name}</span>}
               subtitle={<span>{description && description}</span>}
@@ -80,24 +81,6 @@ const ImageList = ({ images }: { images: Image[] }) => {
     </div>
     )
 
-
-
-    // return (
-    //     <div className="image-grid">
-    //     {images.map((image, index) => {
-    //       const { id, color, urls, alt_description } = image;
-    //       return (
-    //         <div
-    //           className="image-item"
-    //           key={`${id}-${index}`}
-    //           style={{ backgroundColor: color }}
-    //         >
-    //           <img src={urls.small} alt={alt_description} />
-    //         </div>
-    //       );
-    //     })}
-    //   </div>
-    // )
 }
 
 export default ImageList;
