@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createStyles, GridList, GridListTile, GridListTileBar, IconButton, ListSubheader, makeStyles, Theme, useMediaQuery, useTheme } from '@material-ui/core';
+import { createStyles, GridList, GridListTile, GridListTileBar, IconButton, ListSubheader, makeStyles, Theme, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { Image } from '../service/type';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -12,7 +12,21 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.background.paper,
     },
     gridList: {
-      width: "80%",
+      [theme.breakpoints.up('xs')]: {
+        width: 350,
+      },
+      [theme.breakpoints.up('sm')]: {
+        width: 500,
+      },
+      [theme.breakpoints.up('md')]: {
+        width: 800
+      },
+      [theme.breakpoints.up('lg')]: {
+        width: 1200
+      },
+      [theme.breakpoints.up('xl')]: {
+        width: 1600
+      }
     },
     icon: {
       color: 'rgba(255, 255, 255, 0.54)',
@@ -22,7 +36,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 const ImageList = ({ images }: { images: Image[] }) => {
-    const [breakpoint, setBreakpoint] = useState(1);
+    const [breakpoint, setBreakpoint] = useState(4);
     const classes = useStyles();
     const theme = useTheme();
     const xs = useMediaQuery(theme.breakpoints.up('xs'));

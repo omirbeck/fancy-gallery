@@ -6,7 +6,9 @@ import { useFetchData, useIntersactionObserver } from './service/hooks';
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ImageList from "./components/ImageList";
-import { CircularProgress, Grid, makeStyles, Typography } from "@material-ui/core";
+import { Button, CircularProgress, Grid, Icon, makeStyles, Typography } from "@material-ui/core";
+import SliderButton from "./components/SliderButton";
+
 
 
 const INITIAL_PAGE = 1;
@@ -64,6 +66,7 @@ function App() {
       setPath(`${API_URL}/photos/?${params}`);
     }
   }, [query, params]);
+  
 
   return (
     <Grid container direction="column" justify="center">
@@ -79,6 +82,7 @@ function App() {
         align="center"
         color="primary"
         className={classes.title}>{query || 'random'}</Typography>
+      <SliderButton />
       {images.length > 0 && <ImageList images={images} />}
       {hasError &&
         <Typography
@@ -88,6 +92,7 @@ function App() {
       <div
         ref={loader}
         className={classes.loading}>{loading && <CircularProgress />}</div>
+        
     </Grid>
   );
 }
